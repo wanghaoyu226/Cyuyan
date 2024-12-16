@@ -1,1 +1,52 @@
+ackage main
 
+import(
+    "fmt"
+    "time"
+)
+
+//判断是否为闰年
+func isLeapYear(year int)bool{
+    return (year%4==0 && year%100!=0) || year%400==0
+}
+
+//获取指定月份的天数
+func getDaysInMonth(year int,month int)int{
+    if month==2{
+        if isLeapYear(year){
+            return 29
+        }
+        return 28
+    }
+    if month==4 || month==6 || month==9 || month==11{
+        return 30
+    }
+    return 31
+}
+
+//打印日历头部，如显示年份、月份等
+func printHeader(year int,month int){
+    months:=[]string{"January","February","March","April","May","June","July","August","September","October","November","December"}
+    fmt.Printf("%s %d\n",months[month-1],year)
+    fmt.Println("  Sun Mon Tue Wed Thu Fri Sat")
+}
+
+//打印日历主体内容（具体日期）
+func printBody(year int,month int){
+    //获取该月1号是星期几
+    firstDay:=time.Date(year,time.Month(month),1, 0, 0, 0, 0, time.UTC).Weekday()
+    days:=getDaysInMonth(year,month)
+    //前面空的格子填充空格
+    for i:=0;i<int(firstDay);i++{
+        fmt.Printf("    ")
+    }
+    for day:=1;day<=days;day++{
+        fmt.Printf("%4d",day)
+        if int(time.Date(year,time.Month(month),day, 0, 0, 0, 0, time.UTC).Weekday())==6{
+            fmt.Println()
+        }
+    }
+    if int(time.Date(year,time.Month(month),days, 0, 0, 0, 0, time.UTC).Weekday())!=6{
+        fmt.Println()
+    }
+}
