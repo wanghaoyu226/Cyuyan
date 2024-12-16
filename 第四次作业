@@ -1,1 +1,6 @@
-
+#include<stdio.h>
+int main(){
+        long x=1;
+        printf("%s\n","C!YYDS!");
+        return 0;
+}
