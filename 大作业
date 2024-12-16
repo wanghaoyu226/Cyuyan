@@ -1,1 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <curses.h>
+#include <time.h>
+#include <unistd.h>
 
+//定义代码雨的列数和行数
+#define COLS 200
+#define ROWS 30
+
+//单个字符结构体，用于表示下落的字符及其属性
+typedef struct FallingChar{
+    int x;
+    int y;
+    char ch;
+    int speed;
+}FallingChar;
+
+//初始化字符结构体数组，设置初始位置、字符内容和下落速度等
+void initFallingChars(FallingChar* chars,int numChars){
+    srand((unsigned int)time(NULL));
+    for(int i=0;i<numChars;i++){
+        chars[i].x=rand()%COLS;
+        chars[i].y=0;
+        chars[i].ch=(rand()%94)+33;  //选取可打印的ASCII码范围
+        chars[i].speed=(rand()%5)+1;
+    }
+}
+
+// 更新字符的位置，模拟下落效果
+void updateFallingChars(FallingChar* chars,int numChars){
+    for(int i=0;i<numChars;i++){
+        chars[i].y+=chars[i].speed;
+        if(chars[i].y>ROWS){
+            //超出屏幕底部后重新回到顶部
+            chars[i].y=0;
+            chars[i].x=rand()%COLS;
+            chars[i].ch=(rand()%94)+33;
+            chars[i].speed=(rand()%5)+1;
+        }
+    }
+}
+
+//在终端屏幕上绘制字符
+void drawFallingChars(FallingChar* chars,int numChars){
+    for(int i=0;i<numChars;i++){
+        mvaddch(chars[i].y,chars[i].x,chars[i].ch);
+    }
+}
+
+int main(){
+    initscr();  //初始化ncurses库
+    cbreak();    //关闭行缓冲，立即响应输入
+    noecho();    //不回显输入的字符
+    curs_set(0); //隐藏光标
+
+    FallingChar fallingChars[1000];  //定义一定数量的下落字符
+    initFallingChars(fallingChars,1000);
+
+    while (1){
+        clear();  //清屏，准备绘制新的一帧
+        updateFallingChars(fallingChars,1000);
+        drawFallingChars(fallingChars,1000);
+        refresh();  //刷新屏幕，显示绘制的内容
+        usleep(50000);  //短暂停顿，控制动画速度，单位是微秒
+    }
+
+    endwin();  //结束ncurses库的使用，恢复终端默认设置
+    return 0;
+}
