@@ -1,1 +1,49 @@
+#include <stdio.h>
+#include "module.h" //引入module.h头文件
 
+int main(){
+        //调用module.c中定义的两个函数，并打印它们的返回值
+        printf("function1 returns:%d\n",function1());
+        printf("function2 returns:%d\n",function2());
+
+        //打印module.c中定义的全局整数类型变量的值
+        printf("globalVariable value:%d\n",globalVariable);
+
+        return 0;
+}
+
+
+
+
+//以下为module.c
+#include "module.h"
+
+//定义全局整数类型变量
+int globalVariable=42; //假设的初始值
+
+//定义两个函数
+int function1(void){
+        //函数逻辑，返回一个整数常数
+        return 1;
+}
+
+int function2(void){
+        //函数逻辑，返回一个整数常数
+        return 2;
+}
+
+
+
+
+//以下为module.h
+#ifndef MODULE_H
+#define MODULE_H
+
+//声明module.c中定义的两个函数
+int function1(void);
+int function2(void);
+
+//声明module.c中定义的全局整数类型变量
+extern int globalVariable;
+
+#endif //MODULE_H
