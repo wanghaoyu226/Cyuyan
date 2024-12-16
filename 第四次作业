@@ -1,1 +1,108 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
+#define MAX_LINES 100
+#define MAX_WORDS 100
+#define MAX_WORD_LENGTH 100
+
+//声明一个结构体来存储单词及其出现次数
+typedef struct{
+        char word[MAX_WORD_LENGTH];
+        int lineCount[MAX_LINES];
+        int totalCount;
+}WordCount;
+
+//函数声明
+int addWord(WordCount words[],int *wordCount,char *word);
+void printWordCounts(WordCount words[],int wordCount);
+void tokenizeAndCount(WordCount words[],int *wordCount,char *line);
+
+int main(){
+        char **lines=(char **)malloc(MAX_LINES*sizeof(char *));
+        WordCount words[MAX_WORDS];
+        int lineCount=0;
+        int wordCount=0;
+        char line[1024];
+
+        //初始化指针数组
+        for(int i=0;i<MAX_LINES;++i){
+                lines[i]=NULL;
+        }
+
+        printf("Enter lines of text (type 'END' to finish):\n");
+
+        //读取用户输入
+        while(fgets(line,sizeof(line),stdin)&&lineCount<MAX_LINES){
+                //移除换行符
+                line[strcspn(line,"\n")]=0;
+
+                //检查是否结束输入
+                if(strcmp(line,"END")==0){
+                break;
+                }
+
+                //为新行分配内存
+                lines[lineCount]=(char *)malloc((strlen(line)+1)*sizeof(char));
+                strcpy(lines[lineCount],line);
+                lineCount++;
+
+                //统计当前行的单词
+                tokenizeAndCount(words,&wordCount,line);
+        }
+
+        //打印单词及其出现次数
+        printWordCounts(words,wordCount);
+
+        //释放内存
+        for(int i=0;i<lineCount;++i){
+                free(lines[i]);
+        }
+        free(lines);
+
+        return 0;
+}
+
+//将单词添加到words数组中，并更新出现次数
+int addWord(WordCount words[],int *wordCount,char *word){
+        for(int i=0;i<*wordCount;++i){
+                if(strcmp(words[i].word,word)==0){
+                        words[i].lineCount[0]++;
+                        words[i].totalCount++;
+                        return 0;
+                }
+        }
+        strcpy(words[*wordCount].word,word);
+        words[*wordCount].lineCount[0]++;
+        words[*wordCount].totalCount=1;
+        (*wordCount)++;
+        return 1;
+}
+
+//打印单词及其出现次数
+void printWordCounts(WordCount words[],int wordCount){
+        printf("\nWord counts:\n");
+        for(int i=0;i<wordCount;++i){
+                printf("%s: ",words[i].word);
+                for(int j=0;j<MAX_LINES;++j){
+                        if (words[i].lineCount[j]>0){
+                                printf("Line %d: %d ",j+1,words[i].lineCount[j]);
+                        }
+                }
+                printf("Total: %d\n",words[i].totalCount);
+        }
+}
+
+
+//将一行文本分解为单词，并统计每个单词的出现次数
+void tokenizeAndCount(WordCount words[],int *wordCount,char *line){
+        char *token=strtok(line,",.!?;:");
+        while(token!=NULL){
+                for(int i=0;i<strlen(token);++i){
+                        token[i]=tolower(token[i]); //转换为小写
+                }
+                addWord(words,wordCount,token);
+                token=strtok(NULL,",.!?;:");
+        }
+}
